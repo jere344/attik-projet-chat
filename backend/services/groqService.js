@@ -1,11 +1,18 @@
 import Groq from 'groq-sdk';
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+let groq = null;
+
+function getClient() {
+  if (!groq) {
+    groq = new Groq({
+      apiKey: process.env.GROQ_API_KEY,
+    });
+  }
+  return groq;
+}
 
 export async function getAIResponse(userMessage) {
-  const response = await groq.chat.completions.create({
+  const response = await getClient().chat.completions.create({
     model: 'llama-3.1-8b-instant',
     messages: [
       {

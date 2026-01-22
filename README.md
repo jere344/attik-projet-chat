@@ -1,11 +1,12 @@
 # Chat IA - Application Web
 
-Application de chat simple avec intelligence artificielle utilisant Next.js et SQLite.
+Application de chat simple avec intelligence artificielle utilisant Next.js et Supabase.
 
 ## Prérequis
 
 - Node.js 18+
 - Clé API Groq
+- Base de données Supabase (PostgreSQL)
 
 ## Installation
 
@@ -15,7 +16,7 @@ npm install
 
 # Configurer l'environnement
 cp .env.example .env
-# Éditer .env et ajouter votre clé GROQ_API_KEY
+# Éditer .env: ajouter GROQ_API_KEY et DATABASE_URL
 
 # Initialiser la base de données
 npx prisma db push --schema=backend/prisma/schema.prisma
@@ -27,6 +28,10 @@ npm run dev
 ## Docker
 
 ```bash
+# Avec docker-compose (recommandé)
+docker-compose up --build
+
+# Ou manuellement
 docker build -t chat-ia .
 docker run -p 3000:3000 -e GROQ_API_KEY=your_key chat-ia
 ```
@@ -37,7 +42,6 @@ docker run -p 3000:3000 -e GROQ_API_KEY=your_key chat-ia
 ├── frontend/          # Interface React (composants, hooks)
 ├── backend/           # Logique serveur (services, Prisma)
 ├── app/               # Next.js App Router (pages, API)
-├── data/              # Base de données SQLite
 └── Dockerfile
 ```
 

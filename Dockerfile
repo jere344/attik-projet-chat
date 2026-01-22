@@ -1,22 +1,18 @@
 FROM node:20-alpine
 
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy project files
+# Copy all project files first
 COPY . .
 
-# Create data directory for SQLite
-RUN mkdir -p data
+# Install dependencies (postinstall will run prisma generate)
+RUN npm install
 
-# Generate Prisma client and run migrations
+# Generate Prisma client and push schema
 RUN npx prisma generate --schema=backend/prisma/schema.prisma
-RUN npx prisma db push --schema=backend/prisma/schema.prisma
 
 # Build Next.js app
 RUN npm run build
