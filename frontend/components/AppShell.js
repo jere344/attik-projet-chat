@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import AuthForm from './AuthForm';
 import ChatApp from './ChatApp';
 import useAuth from '../hooks/useAuth';
-import { Box, Button, AppBar, Toolbar, Typography } from '@mui/material';
+import { Box, Button, AppBar, Toolbar, Typography, CircularProgress } from '@mui/material';
 
 export default function AppShell() {
   const auth = useAuth();
@@ -12,7 +12,26 @@ export default function AppShell() {
   // ensure client-side render after hydration
   useEffect(() => {}, []);
 
-  const token = auth?.token;
+  const { token, loading } = auth;
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          flexDirection: 'column'
+        }}
+      >
+        <CircularProgress />
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          Loading...
+        </Typography>
+      </Box>
+    );
+  }
 
   if (!token) {
     return (
