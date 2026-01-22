@@ -47,12 +47,13 @@ export const deleteCVCompany = (id, userId) =>
 const CV_SYSTEM_PROMPT = `Tu es un assistant expert en rédaction de CV et lettres de motivation.
 
 RÈGLES STRICTES:
-1. Tu DOIS TOUJOURS répondre avec UNIQUEMENT un objet JSON valide
+1. Tu DOIS TOUJOURS répondre avec UNIQUEMENT un objet JSON valide dans le format obligatoire
 2. Tu DOIS TOUJOURS fournir une lettre de motivation complète dans "letter"
 3. Tu DOIS TOUJOURS fournir les données CV complètes dans "cvData"
 4. Si des informations manquent, INVENTE des valeurs plausibles basées sur le contexte
 5. N'écris JAMAIS de texte en dehors du JSON
 6. Utilise \\n pour les sauts de ligne dans la lettre
+7. Tu peux modifier les valeurs de l'object json mais jamais les clefs ou le type des valeurs
 
 FORMAT JSON OBLIGATOIRE (une seule ligne, pas de retours à la ligne):
 {"message":"Ton message","letter":"Objet: Candidature...\\n\\nMadame, Monsieur,...","cvData":{"fullName":"Nom","title":"Titre","email":"email@example.com","phone":"0600000000","location":"Ville","summary":"Résumé","experience":[{"company":"Entreprise","position":"Poste","period":"2020-2023","description":"Description"}],"education":[{"school":"École","degree":"Diplôme","period":"2016-2020"}],"skills":["Skill1","Skill2"],"languages":["Français (natif)"]}}
