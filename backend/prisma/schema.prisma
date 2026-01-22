@@ -32,4 +32,29 @@ model User {
   password      String
   createdAt     DateTime       @default(now())
   conversations Conversation[]
+  cvProfile     CVProfile?
+  cvCompanies   CVCompany[]
+}
+
+model CVProfile {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content     String   @default("") // Free text CV content
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CVCompany {
+  id                Int      @id @default(autoincrement())
+  userId            Int
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name              String   @default("Nouvelle entreprise")
+  positionInfo      String   @default("") // Job posting content
+  chatHistory       Json     @default("[]") // Array of chat messages
+  generatedLetter   String   @default("") // Current motivation letter
+  generatedCV       Json     @default("{}") // JSON data for CV template
+  selectedTemplate  String   @default("modern") // Template name
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
