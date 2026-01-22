@@ -3,6 +3,7 @@
 import { Box, Paper, Typography, CircularProgress } from '@mui/material';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
+import EmptyState from './EmptyState';
 import useChat from '../hooks/useChat';
 
 export default function Chat({ conversationId, onMessageSent }) {
@@ -24,11 +25,7 @@ export default function Chat({ conversationId, onMessageSent }) {
       )}
 
       {!conversationId ? (
-        <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Typography color="text.secondary">
-            Sélectionnez ou créez une conversation pour commencer
-          </Typography>
-        </Box>
+        <EmptyState message="Sélectionnez ou créez une conversation pour commencer" />
       ) : (
         <>
           <MessageList messages={messages} onDeleteMessage={deleteMessageAndFollowing} />

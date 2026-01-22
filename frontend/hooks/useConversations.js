@@ -8,30 +8,26 @@ export default function useConversations() {
   const [conversations, setConversations] = useState([]);
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const auth = useAuth();
   const api = useMemo(() => createApiClient(auth?.token), [auth?.token]);
 
-  const fetchConversations = useCallback(async () => {
+  const fetchConversations = useCallback(async (initialLoad = false) => {
     if (!auth?.token) return;
     try {
-      setLoading(true);
+      if (initialLoad) setLoading(true);
       const data = await api.get('/api/conversations');
       setConversations(Array.isArray(data) ? data : []);
-      if (data.length > 0 && !currentConversationId) {
-        setCurrentConversationId(data[0].id);
-      }
+      setCurrentConversationId(prev => prev || data[0]?.id || null);
     } catch {
-      setError('Failed to load conversations');
       setConversations([]);
     } finally {
-      setLoading(false);
+      if (initialLoad) setLoading(false);
     }
-  }, [auth?.token, api, currentConversationId]);
+  }, [auth?.token, api]);
 
   useEffect(() => {
-    if (auth?.token) fetchConversations();
-  }, [auth?.token]);
+    if (auth?.token) fetchConversations(true);
+  }, [auth?.token, fetchConversations]);
 
   const createConversation = useCallback(async () => {
     if (!auth?.token) return null;
@@ -40,8 +36,7 @@ export default function useConversations() {
       setConversations((prev) => [newConversation, ...prev]);
       setCurrentConversationId(newConversation.id);
       return newConversation;
-    } catch (err) {
-      setError(err.message);
+    } catch {
       return null;
     }
   }, [auth?.token, api]);
@@ -57,19 +52,20 @@ export default function useConversations() {
         }
         return remaining;
       });
-    } catch (err) {
-      setError(err.message);
-    }
+    } catch {}
   }, [auth?.token, api, currentConversationId]);
+
+  const selectConversation = useCallback((id) => {
+    setCurrentConversationId(id);
+  }, []);
 
   return {
     conversations,
     currentConversationId,
     loading,
-    error,
     createConversation,
     deleteConversation,
-    selectConversation: setCurrentConversationId,
+    selectConversation,
     refreshConversations: fetchConversations,
   };
 }

@@ -1,7 +1,7 @@
 import prisma from '../lib/prisma.js';
 import { getAIResponse } from './groqService.js';
 
-const toInt = (id) => parseInt(id);
+const toInt = (id) => parseInt(id, 10);
 
 // Conversation functions
 export const getAllConversations = (userId) =>
@@ -19,8 +19,8 @@ export const getConversation = (id, userId) =>
 export const createConversation = (title = 'Nouvelle conversation', userId) =>
   prisma.conversation.create({ data: { title, userId: toInt(userId) } });
 
-export const updateConversationTitle = (id, title, userId) =>
-  prisma.conversation.updateMany({ where: { id: toInt(id), userId: toInt(userId) }, data: { title } });
+export const updateConversationTitle = (id, title) =>
+  prisma.conversation.update({ where: { id: toInt(id) }, data: { title } });
 
 export const deleteConversation = (id, userId) =>
   prisma.conversation.deleteMany({ where: { id: toInt(id), userId: toInt(userId) } });
@@ -45,13 +45,15 @@ async function createMessage(content, role, conversationId, updateTimestamp = fa
 }
 
 export async function processMessage(userContent, conversationId) {
-  const userMessage = await createMessage(userContent, 'user', conversationId, true);
   const messages = await getMessagesByConversation(conversationId);
-  const aiResponse = await getAIResponse(userContent, messages);
+  const isFirstMessage = messages.length === 0;
+  
+  const userMessage = await createMessage(userContent, 'user', conversationId, true);
+  const aiResponse = await getAIResponse(userContent, [...messages, userMessage]);
   const assistantMessage = await createMessage(aiResponse, 'assistant', conversationId);
 
   // Auto-generate title from first message
-  if (messages.length === 1) {
+  if (isFirstMessage) {
     const title = userContent.length > 50 ? userContent.substring(0, 50) + '...' : userContent;
     await updateConversationTitle(conversationId, title);
   }

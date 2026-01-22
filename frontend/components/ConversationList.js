@@ -3,6 +3,7 @@
 import { Box, List, ListItemButton, ListItemText, IconButton, Typography, Divider } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EmptyState from './EmptyState';
 
 export default function ConversationList({
   conversations,
@@ -55,11 +56,11 @@ export default function ConversationList({
       {/* Conversation list */}
       <Box sx={{ flex: 1, overflow: 'auto' }}>
         <List disablePadding>
-          {(!conversations || conversations.length === 0) ? (
-            <Box sx={{ p: 2, textAlign: 'center', color: 'text.secondary' }}>
-              <Typography variant="body2">Aucune conversation</Typography>
-              <Typography variant="caption">Cliquez sur + pour commencer</Typography>
-            </Box>
+          {conversations?.length === 0 ? (
+            <EmptyState
+              message="Aucune conversation"
+              subtitle="Cliquez sur + pour commencer"
+            />
           ) : (
             conversations.map((conversation) => (
               <ListItemButton

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Box, Button, TextField, Typography, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import useAuth from '../hooks/useAuth';
 
-export default function AuthForm({ onAuth }) {
+export default function AuthForm() {
   const [mode, setMode] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,7 +20,6 @@ export default function AuthForm({ onAuth }) {
       } else {
         await register(email, password);
       }
-      if (onAuth) onAuth();
     } catch (err) {
       setError(err.message);
     }

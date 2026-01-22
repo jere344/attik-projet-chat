@@ -1,8 +1,9 @@
 'use client';
 
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import ConversationList from './ConversationList';
 import Chat from './Chat';
+import LoadingSpinner from './LoadingSpinner';
 import useConversations from '../hooks/useConversations';
 
 export default function ChatApp() {
@@ -17,21 +18,7 @@ export default function ChatApp() {
   } = useConversations();
 
   if (loading) {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-          gap: 2,
-        }}
-      >
-        <CircularProgress size={48} />
-        <Typography color="text.secondary">Chargement...</Typography>
-      </Box>
-    );
+    return <LoadingSpinner message="Chargement..." />;
   }
 
   return (

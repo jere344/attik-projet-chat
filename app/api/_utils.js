@@ -14,3 +14,12 @@ export const unauthorized = () => NextResponse.json({ error: 'Unauthorized' }, {
 export const badRequest = (msg) => NextResponse.json({ error: msg }, { status: 400 });
 export const notFound = (msg) => NextResponse.json({ error: msg }, { status: 404 });
 export const serverError = (err) => NextResponse.json({ error: err.message }, { status: 500 });
+
+// Helper for auth endpoint validation
+export async function validateAuthFields(request) {
+  const { email, password } = await request.json();
+  if (!email || !password) {
+    throw new Error('Missing fields');
+  }
+  return { email: email.toLowerCase(), password };
+}

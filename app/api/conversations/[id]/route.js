@@ -21,7 +21,7 @@ export async function PATCH(request, { params }) {
     const { id } = await params;
     const { title } = await request.json();
     if (!title?.trim()) return badRequest('Title cannot be empty');
-    return success(await updateConversationTitle(id, title.trim(), user.sub));
+    return success(await updateConversationTitle(id, title.trim()));
   } catch (error) {
     return serverError(error);
   }
