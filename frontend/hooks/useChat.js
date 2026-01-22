@@ -1,54 +1,59 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import useAuth from './useAuth';
+import { createApiClient } from '../lib/api';
 
-export default function useChat() {
+export default function useChat(conversationId) {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const auth = useAuth();
+  const api = useMemo(() => createApiClient(auth?.token), [auth?.token]);
 
-  // Load messages on mount or when token changes
-  useEffect(() => {
-    if (auth?.token) fetchMessages();
-  }, [auth?.token]);
-
-  async function fetchMessages() {
+  const fetchMessages = useCallback(async () => {
+    if (!conversationId) return;
     try {
-      const headers = auth?.token ? { Authorization: `Bearer ${auth.token}` } : {};
-      const response = await fetch('/api/chat', { headers });
-      const data = await response.json();
-      setMessages(data);
-    } catch (err) {
+      setLoading(true);
+      setMessages(await api.get(`/api/chat?conversationId=${conversationId}`));
+    } catch {
       setError('Failed to load messages');
+    } finally {
+      setLoading(false);
     }
-  }
+  }, [conversationId, api]);
 
-  async function sendMessage(content) {
+  useEffect(() => {
+    conversationId ? fetchMessages() : setMessages([]);
+  }, [conversationId, fetchMessages]);
+
+  const sendMessage = useCallback(async (content) => {
+    if (!conversationId) return setError('No conversation selected');
     setLoading(true);
     setError(null);
 
     try {
-      const headers = { 'Content-Type': 'application/json', ...(auth?.token ? { Authorization: `Bearer ${auth.token}` } : {}) };
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({ content }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to send message');
-      }
-
-      const { userMessage, assistantMessage } = await response.json();
+      const { userMessage, assistantMessage } = await api.post('/api/chat', { content, conversationId });
       setMessages((prev) => [...prev, userMessage, assistantMessage]);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }
+  }, [conversationId, api]);
 
-  return { messages, loading, error, sendMessage };
+  const deleteMessageAndFollowing = useCallback(async (messageId) => {
+    setError(null);
+    try {
+      await api.delete(`/api/messages/${messageId}`);
+      setMessages((prev) => {
+        const idx = prev.findIndex((m) => m.id === messageId);
+        return idx === -1 ? prev : prev.slice(0, idx);
+      });
+    } catch (err) {
+      setError(err.message);
+    }
+  }, [api]);
+
+  return { messages, loading, error, sendMessage, deleteMessageAndFollowing };
 }

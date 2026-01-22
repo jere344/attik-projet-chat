@@ -1,38 +1,27 @@
-import { NextResponse } from 'next/server';
-import { getAllMessages, processMessage } from '../../../backend/services/chatService.js';
-import { verifyToken } from '../../../backend/services/authService.js';
+import { getMessagesByConversation, processMessage } from '../../../backend/services/chatService.js';
+import { auth, unauthorized, badRequest, serverError, success } from '../_utils.js';
 
 export async function GET(request) {
   try {
-    const authHeader = request.headers.get('authorization') || '';
-    const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
-    const payload = verifyToken(token);
-    if (!payload) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!auth(request)) return unauthorized();
+    const conversationId = new URL(request.url).searchParams.get('conversationId');
+    if (!conversationId) return badRequest('conversationId is required');
 
-    const messages = await getAllMessages();
-    return NextResponse.json(messages);
+    return success(await getMessagesByConversation(conversationId));
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return serverError(error);
   }
 }
 
 export async function POST(request) {
   try {
-    const authHeader = request.headers.get('authorization') || '';
-    const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
-    const payload = verifyToken(token);
-    if (!payload) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!auth(request)) return unauthorized();
+    const { content, conversationId } = await request.json();
+    if (!content?.trim()) return badRequest('Message cannot be empty');
+    if (!conversationId) return badRequest('conversationId is required');
 
-    const { content } = await request.json();
-
-    if (!content || content.trim() === '') {
-      return NextResponse.json({ error: 'Message cannot be empty' }, { status: 400 });
-    }
-
-    const { userMessage, assistantMessage } = await processMessage(content.trim());
-
-    return NextResponse.json({ userMessage, assistantMessage });
+    return success(await processMessage(content.trim(), conversationId));
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return serverError(error);
   }
 }
