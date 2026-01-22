@@ -1,7 +1,9 @@
 'use client';
 
-import { Box, Paper, Typography, IconButton, Tooltip } from '@mui/material';
+import { Box, Paper, IconButton, Tooltip } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import ReactMarkdown from 'react-markdown';
+import remarkGfh from 'remark-gfm';
 
 const DeleteButton = ({ onClick, placement, sx }) => (
   <Tooltip title="Supprimer ce message et les suivants" placement={placement}>
@@ -40,9 +42,29 @@ export default function MessageList({ messages, onDeleteMessage, isTyping }) {
                 maxWidth: '70%',
                 bgcolor: isUser ? 'primary.main' : 'grey.200',
                 color: isUser ? 'white' : 'text.primary',
+                '& p': { m: 0, mb: 1, '&:last-child': { mb: 0 } },
+                '& pre': { 
+                  bgcolor: 'rgba(0,0,0,0.1)', 
+                  p: 1, 
+                  borderRadius: 1, 
+                  overflow: 'auto',
+                  my: 1
+                },
+                '& code': { 
+                  bgcolor: 'rgba(0,0,0,0.1)', 
+                  px: 0.5, 
+                  py: 0.25,
+                  borderRadius: 0.5,
+                  fontSize: '0.9em'
+                },
+                '& ul, & ol': { mt: 0, mb: 1, pl: 2 },
+                '& li': { mb: 0.5 },
+                '& h1, & h2, & h3, & h4, & h5, & h6': { mt: 1, mb: 1 },
               }}
             >
-              <Typography variant="body1">{msg.content}</Typography>
+              <ReactMarkdown remarkPlugins={[remarkGfh]}>
+                {msg.content}
+              </ReactMarkdown>
             </Paper>
             {!isUser && onDeleteMessage && (
               <DeleteButton onClick={() => onDeleteMessage(msg.id)} placement="right" sx={{ ml: 1 }} />
