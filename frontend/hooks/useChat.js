@@ -1,20 +1,23 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import useAuth from './useAuth';
 
 export default function useChat() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const auth = useAuth();
 
-  // Load messages on mount
+  // Load messages on mount or when token changes
   useEffect(() => {
-    fetchMessages();
-  }, []);
+    if (auth?.token) fetchMessages();
+  }, [auth?.token]);
 
   async function fetchMessages() {
     try {
-      const response = await fetch('/api/chat');
+      const headers = auth?.token ? { Authorization: `Bearer ${auth.token}` } : {};
+      const response = await fetch('/api/chat', { headers });
       const data = await response.json();
       setMessages(data);
     } catch (err) {
@@ -27,9 +30,10 @@ export default function useChat() {
     setError(null);
 
     try {
+      const headers = { 'Content-Type': 'application/json', ...(auth?.token ? { Authorization: `Bearer ${auth.token}` } : {}) };
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ content }),
       });
 

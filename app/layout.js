@@ -1,4 +1,5 @@
 import ThemeRegistry from '../frontend/components/ThemeRegistry';
+import { AuthProvider } from '../frontend/hooks/useAuth';
 
 export const metadata = {
   title: 'Chat IA',
@@ -9,7 +10,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="fr">
       <body>
-        <ThemeRegistry>{children}</ThemeRegistry>
+        <ThemeRegistry>
+          <AuthProvider>{children}</AuthProvider>
+        </ThemeRegistry>
       </body>
     </html>
   );

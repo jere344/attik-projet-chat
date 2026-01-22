@@ -10,9 +10,6 @@ export default function Chat() {
 
   return (
     <Paper sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ p: 2, bgcolor: 'primary.main', color: 'white' }}>
-        <Typography variant="h6">Chat IA</Typography>
-      </Box>
 
       {error && (
         <Typography color="error" sx={{ p: 2 }}>
