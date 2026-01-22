@@ -1,0 +1,8 @@
+services:
+  chat:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - DATABASE_URL=${DATABASE_URL}
