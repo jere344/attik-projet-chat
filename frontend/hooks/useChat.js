@@ -31,11 +31,29 @@ export default function useChat(conversationId) {
     if (!conversationId) return setError('No conversation selected');
     setLoading(true);
     setError(null);
+    
+    // Optimistic update: append user's message immediately with a temporary id
+    const tempId = `temp-${Date.now()}`;
+    const tempUserMessage = {
+      id: tempId,
+      content,
+      role: 'user',
+      createdAt: new Date().toISOString(),
+    };
+
+    setMessages((prev) => [...prev, tempUserMessage]);
 
     try {
       const { userMessage, assistantMessage } = await api.post('/api/chat', { content, conversationId });
-      setMessages((prev) => [...prev, userMessage, assistantMessage]);
+
+      // Replace temporary user message with the one returned from server (has real id)
+      setMessages((prev) => {
+        const replaced = prev.map((m) => (m.id === tempId ? userMessage : m));
+        return [...replaced, assistantMessage];
+      });
     } catch (err) {
+      // Remove temp message on error and show error
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
       setError(err.message);
     } finally {
       setLoading(false);

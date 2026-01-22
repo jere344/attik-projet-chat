@@ -28,7 +28,7 @@ export default function Chat({ conversationId, onMessageSent }) {
         <EmptyState message="Sélectionnez ou créez une conversation pour commencer" />
       ) : (
         <>
-          <MessageList messages={messages} onDeleteMessage={deleteMessageAndFollowing} />
+          <MessageList messages={messages} onDeleteMessage={deleteMessageAndFollowing} isTyping={loading} />
 
           {loading && (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
